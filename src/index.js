@@ -107,7 +107,7 @@ export default class Autolink extends Component {
         return [match.getAnchorHref()];
       }
       case 'stockSymbol': {
-         return ['google.com'];
+         return ['http://google.com'];
       }
       default: {
         return [match.getMatchedText()];
