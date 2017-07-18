@@ -106,6 +106,9 @@ export default class Autolink extends Component {
       case 'url': {
         return [match.getAnchorHref()];
       }
+      case 'stockSymbol': {
+         return ['google.com'];
+      }
       default: {
         return [match.getMatchedText()];
       }
@@ -136,6 +139,7 @@ export default class Autolink extends Component {
     let {
       email,
       hashtag,
+      stockSymbol,
       linkStyle,
       mention,
       onPress,
@@ -175,6 +179,7 @@ export default class Autolink extends Component {
         email,
         hashtag,
         mention,
+        stockSymbol,
         phone,
         urls: url,
         stripPrefix,
@@ -206,6 +211,7 @@ export default class Autolink extends Component {
           case 'mention':
           case 'phone':
           case 'url':
+          case 'stockSymbol':
             return (renderLink) ?
               renderLink(match.getAnchorText(), match, index) :
               this.renderLink(match.getAnchorText(), match, index);
@@ -225,6 +231,7 @@ Autolink.defaultProps = {
   email: true,
   hashtag: false,
   mention: false,
+  stockSymbol: false,
   phone: true,
   showAlert: false,
   stripPrefix: true,
@@ -240,6 +247,7 @@ Autolink.propTypes = {
   hashtag: PropTypes.oneOf([false, 'instagram', 'twitter']),
   linkStyle: Text.propTypes.style,
   mention: PropTypes.oneOf([false, 'instagram', 'twitter']),
+  stockSymbol: PropTypes.bool,
   numberOfLines: PropTypes.number,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
