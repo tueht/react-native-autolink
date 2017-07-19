@@ -1,12 +1,13 @@
 # React Native AutoLink
 [![NPM Version][npm-image]][npm-url] [![Build Status][build-image]][build-url] [![Dependency Status][depstat-image]][depstat-url] [![Dev Dependency Status][devdepstat-image]][devdepstat-url]
 
-Auto-Linking component for React Native. Parses text and wraps URLs, phone numbers, emails, twitter handles, and hashtags with Text nodes and onPress handlers using the [Autolinker.js](https://github.com/gregjacobs/Autolinker.js).
+Auto-Linking component for React Native. Parses text and wraps URLs, phone numbers, emails, twitter handles, stock symbol, and hashtags with Text nodes and onPress handlers using the [Autolinker.js](https://github.com/tueht/Autolinker.js).
 
 ## Installation
 
 ```javascript
 npm install react-native-autolink --save
+"react-native-autolink": "github:tueht/react-native-autolink"
 ```
 
 ## Usage
@@ -34,6 +35,7 @@ class MyComponent extends Component {
 | ---- | ---- | ------- | ----------- |
 | `text` | `String` | | ***Required.*** The string to parse for links. |
 | `email` | `Boolean` | `true` | Enable email linking (`mailto:{email}`). |
+| `stockSymbol` | `Boolean` | `false` | Enable stock symbol linking. eg: $AAPL |
 | `hashtag` | `Boolean/String` | `false` | Enable hashtag linking to supplied service. Possible values: `false`, `"instagram"`, `"twitter"`. |
 | `mention` | `Boolean/String` | `false` | Enable mention/handle linking to supplied service. Possible values: `false`, `"instagram"`, `"twitter"`. |
 | `phone` | `Boolean/String` | `true` | Enable phone linking (`tel:{number}`, `sms:{number}`) for calling/texting. Possible values: `false`, `"text"`|
