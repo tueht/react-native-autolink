@@ -89,6 +89,8 @@ export default class Autolink extends Component {
             return [`instagram://user?username=${mention}`, `https://www.instagram.com/${mention}/`];
           case 'twitter':
             return [`twitter://user?screen_name=${mention}`, `https://twitter.com/${mention}`];
+        case 'tradably':
+            return [`tradably://user?screen_name=${mention}`, `https://tradably.com/${mention}`];
           default:
             return [match.getMatchedText()];
         }
