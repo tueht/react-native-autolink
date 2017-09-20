@@ -249,7 +249,7 @@ Autolink.propTypes = {
   email: PropTypes.bool,
   hashtag: PropTypes.oneOf([false, 'instagram', 'twitter']),
   linkStyle: Text.propTypes.style,
-  mention: PropTypes.oneOf([false, 'instagram', 'twitter']),
+  mention: PropTypes.oneOf([false, 'instagram', 'twitter', 'tradably']),
   stockSymbol: PropTypes.bool,
   numberOfLines: PropTypes.number,
   onPress: PropTypes.func,
