@@ -1,7 +1,7 @@
 /*!
  * React Native Autolink
  *
- * Copyright 2016-2017 Josh Swan
+ * Copyright 2016-2018 Josh Swan
  * Released under the MIT license
  * https://github.com/joshswan/react-native-autolink/blob/master/LICENSE
  */
@@ -74,13 +74,33 @@ describe('<Autolink />', () => {
     expect(wrapper.find('Text')).to.have.length(2);
   });
 
+  it('should match top-level domain url when wwwMatches enabled', () => {
+    const wrapper = shallow(<Autolink text="github.com" url={{ tldMatches: true }} />);
+    expect(wrapper.find('Text')).to.have.length(2);
+  });
+
+  it('should not match top-level domain url when wwwMatches disabled', () => {
+    const wrapper = shallow(<Autolink text="github.com" url={{ tldMatches: false }} />);
+    expect(wrapper.find('Text')).to.have.length(1);
+  });
+
+  it('should not match www containing url when wwwMatches disabled', () => {
+    const wrapper = shallow(<Autolink text="www.github.com" url={{ wwwMatches: false }} />);
+    expect(wrapper.find('Text')).to.have.length(1);
+  });
+
+  it('should not match scheme containing url when schemeMatches disabled', () => {
+    const wrapper = shallow(<Autolink text="http://github.com" url={{ schemeMatches: false }} />);
+    expect(wrapper.find('Text')).to.have.length(1);
+  });
+
   it('should not wrap a url in a Text node when url prop disabled', () => {
     const wrapper = shallow(<Autolink text="https://github.com/joshswan/react-native-autolink" url={false} />);
     expect(wrapper.find('Text')).to.have.length(1);
   });
 
   it('should link multiple elements individually', () => {
-    const wrapper = shallow(
+    const wrapper = shallow((
       <Autolink
         text="Hi @josh (josh@example.com or 415-555-5555), check out https://github.com/joshswan/react-native-autolink. It's #awesome!"
         email
@@ -89,7 +109,7 @@ describe('<Autolink />', () => {
         phone
         url
       />
-    );
+    ));
     expect(wrapper.find('Text')).to.have.length(6);
   });
 
@@ -99,24 +119,29 @@ describe('<Autolink />', () => {
     expect(wrapper.contains('github.com')).to.equal(true);
   });
 
+  it('should not remove url prefixes when stripPrefix prop disabled', () => {
+    const wrapper = shallow(<Autolink text="https://github.com" stripPrefix={false} />);
+    expect(wrapper.contains('https://github.com')).to.equal(true);
+  });
+
   it('should truncate urls to length specified in truncate prop', () => {
-    const wrapper = shallow(
+    const wrapper = shallow((
       <Autolink
         text="github.com/joshswan/react-native-autolink"
         truncate={32}
       />
-    );
+    ));
     expect(wrapper.contains('github.com/joshswan/react-native-autolink')).to.equal(false);
     expect(wrapper.contains('github.com/joshswan/..e-autolink')).to.equal(true);
   });
 
   it('should not truncate urls when zero is passed for truncate prop', () => {
-    const wrapper = shallow(
+    const wrapper = shallow((
       <Autolink
         text="github.com/joshswan/react-native-autolink"
         truncate={0}
       />
-    );
+    ));
     expect(wrapper.contains('github.com/joshswan/react-native-autolink')).to.equal(true);
     expect(wrapper.contains('github.com/joshswan/..e-autolink')).to.equal(false);
   });
@@ -155,5 +180,18 @@ describe('<Autolink />', () => {
     const wrapper = shallow(<Autolink text="josh@example.com" onLongPress={onLongPress} />);
     wrapper.children().find('Text').simulate('longPress');
     expect(onLongPress.called).to.equal(true);
+  });
+
+  /**
+   * EXPERIMENTAL
+   */
+  it('should wrap a latitude/longitude pair in a Text node when latlng prop enabled', () => {
+    const wrapper = shallow(<Autolink text="34.0522, -118.2437" latlng />);
+    expect(wrapper.find('Text')).to.have.length(2);
+  });
+
+  it('should not wrap a latitude/longitude pair in a Text node when latlng prop disabled', () => {
+    const wrapper = shallow(<Autolink text="34.0522, -118.2437" latlng={false} />);
+    expect(wrapper.find('Text')).to.have.length(1);
   });
 });

@@ -1,7 +1,7 @@
 /*!
  * React Native Autolink
  *
- * Copyright 2016-2017 Josh Swan
+ * Copyright 2016-2018 Josh Swan
  * Released under the MIT license
  * https://github.com/joshswan/react-native-autolink/blob/master/LICENSE
  */
@@ -10,6 +10,9 @@ import React, { Component, createElement } from 'react';
 import Autolinker from 'autolinker';
 import PropTypes from 'prop-types'
 import { Alert, Linking, Platform, StyleSheet, Text } from 'react-native';
+import matchers from './matchers';
+
+const tagBuilder = Autolinker.prototype.getTagBuilder();
 
 const styles = StyleSheet.create({
   link: {
@@ -81,6 +84,12 @@ export default class Autolink extends Component {
             return [match.getMatchedText()];
         }
       }
+      case 'latlng': {
+        const latlng = match.getLatLng();
+        const query = latlng.replace(/\s/g, '');
+
+        return [Platform.OS === 'ios' ? `http://maps.apple.com/?q=${encodeURIComponent(latlng)}&ll=${query}` : `https://www.google.com/maps/search/?api=1&query=${query}`];
+      }
       case 'mention': {
         const mention = match.getMention();
 
@@ -118,13 +127,14 @@ export default class Autolink extends Component {
     }
   }
 
-  renderLink(text, match, index) {
+  renderLink(text, match, index, textProps) {
     const truncated = (this.props.truncate > 0) ?
       Autolinker.truncate.TruncateSmart(text, this.props.truncate, this.props.truncateChars) :
       text;
 
     return (
       <Text
+        {...textProps}
         key={index}
         style={[styles.link, this.props.linkStyle]}
         onPress={() => this.onPress(match)}
@@ -142,6 +152,7 @@ export default class Autolink extends Component {
     let {
       email,
       hashtag,
+      latlng,
       stockSymbol,
       linkStyle,
       mention,
@@ -151,6 +162,7 @@ export default class Autolink extends Component {
       renderLink,
       showAlert,
       stripPrefix,
+      style,
       text,
       truncate,
       truncateChars,
@@ -194,6 +206,25 @@ export default class Autolink extends Component {
           return token;
         },
       });
+
+      // Custom matchers
+      matchers.forEach(({ id, regex, Match }) => {
+        if (this.props[id]) {
+          text = text.replace(regex, (...args) => {
+            const token = generateToken();
+            const matchedText = args[0];
+
+            matches[token] = new Match({
+              tagBuilder,
+              matchedText,
+              offset: args[args.length - 2],
+              [id]: matchedText,
+            });
+
+            return token;
+          });
+        }
+      });
     } catch (e) {
       console.warn(e); // eslint-disable-line no-console
 
@@ -211,13 +242,14 @@ export default class Autolink extends Component {
         switch (match.getType()) {
           case 'email':
           case 'hashtag':
+          case 'latlng':
           case 'mention':
           case 'phone':
           case 'url':
           case 'stockSymbol':
             return (renderLink) ?
               renderLink(match.getAnchorText(), match, index) :
-              this.renderLink(match.getAnchorText(), match, index);
+              this.renderLink(match.getAnchorText(), match, index, other);
           default:
             return part;
         }
@@ -225,6 +257,7 @@ export default class Autolink extends Component {
 
     return createElement(Text, {
       ref: (component) => { this._root = component; }, // eslint-disable-line no-underscore-dangle
+      style,
       ...other,
     }, ...nodes);
   }
@@ -233,6 +266,7 @@ export default class Autolink extends Component {
 Autolink.defaultProps = {
   email: true,
   hashtag: false,
+  latlng: false,
   mention: false,
   stockSymbol: false,
   phone: true,
@@ -247,10 +281,11 @@ Autolink.defaultProps = {
 
 Autolink.propTypes = {
   email: PropTypes.bool,
-  hashtag: PropTypes.oneOf([false, 'instagram', 'twitter']),
+  hashtag: PropTypes.oneOf([false, 'instagram', 'twitter', 'tradably']),
   linkStyle: Text.propTypes.style,
   mention: PropTypes.oneOf([false, 'instagram', 'twitter', 'tradably']),
   stockSymbol: PropTypes.bool,
+  latlng: PropTypes.bool,
   numberOfLines: PropTypes.number,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
@@ -258,10 +293,18 @@ Autolink.propTypes = {
   renderLink: PropTypes.func,
   showAlert: PropTypes.bool,
   stripPrefix: PropTypes.bool,
+  style: Text.propTypes.style, // eslint-disable-line react/no-typos
   text: PropTypes.string.isRequired,
   truncate: PropTypes.number,
   truncateChars: PropTypes.string,
   twitter: PropTypes.bool,
-  url: PropTypes.bool,
+  url: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.shape({
+      schemeMatches: PropTypes.bool,
+      wwwMatches: PropTypes.bool,
+      tldMatches: PropTypes.bool,
+    }),
+  ]),
   webFallback: PropTypes.bool,
 };
